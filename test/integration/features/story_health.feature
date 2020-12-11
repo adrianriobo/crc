@@ -62,7 +62,7 @@ Feature: End-to-end health check
             """
             service "httpd-example" created
             """
-        When executing "oc rollout status deployment httpd-example" succeeds
+        When executing "oc rollout status dc/httpd-example" succeeds
         Then stdout should contain "successfully rolled out"
 
 
