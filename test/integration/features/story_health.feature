@@ -43,7 +43,7 @@ Feature: End-to-end health check
             """
         And stdout should contain "You can add applications to this project with the 'new-app' command."
 
-    @darwin @linux @windows
+    @darwin @linux
     Scenario: Create and test app
         When executing "oc new-app httpd-example" succeeds
         Then stdout should contain "Creating resources"
@@ -53,6 +53,18 @@ Feature: End-to-end health check
             """
         When executing "oc rollout status dc/httpd-example || oc rollout status deployment httpd-example" succeeds
         Then stdout should contain "successfully rolled out"
+
+    @windows
+    Scenario: Create and test app
+        When executing "oc new-app httpd-example" succeeds
+        Then stdout should contain "Creating resources"
+        And stdout should contain
+            """
+            service "httpd-example" created
+            """
+        When executing "oc rollout status deployment httpd-example" succeeds
+        Then stdout should contain "successfully rolled out"
+
 
     @darwin @linux @windows
     Scenario: Stop and start CRC, then check app still runs
