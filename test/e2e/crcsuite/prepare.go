@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/code-ready/crc/pkg/download"
+	"github.com/code-ready/crc/test/e2e/crcsuite/ux"
 )
 
 // Download bundle for testing
@@ -114,14 +115,14 @@ func CopyFilesToTestDir() error {
 			return err
 		}
 	}
-
 	return nil
 }
 
 func ParseFlags() {
-
 	flag.StringVar(&bundleLocation, "bundle-location", "", "Path to the bundle to be used in tests")
 	flag.StringVar(&pullSecretFile, "pull-secret-file", "", "Path to the file containing pull secret")
 	flag.StringVar(&CRCExecutable, "crc-binary", "", "Path to the CRC executable to be tested")
 	flag.StringVar(&bundleVersion, "bundle-version", "", "Version of the bundle used in tests")
+	// Extend the context with tray when supported
+	ux.ParseFlags()
 }

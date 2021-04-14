@@ -16,6 +16,8 @@ import (
 	"github.com/cucumber/messages-go/v10"
 
 	clicumber "github.com/code-ready/clicumber/testsuite"
+	"github.com/code-ready/crc/test/e2e/crcsuite/ux"
+	"github.com/code-ready/crc/test/extended/crc/cmd"
 )
 
 var (
@@ -158,6 +160,13 @@ func FeatureContext(s *godog.Suite) {
 			fmt.Printf("Could not delete CRC VM: %s.", err)
 		}
 	})
+
+	// Extend the context with tray when supported
+	ux.FeatureContext(s, &bundleLocation, &pullSecretFile)
+}
+
+func WaitForClusterInState(state string) error {
+	return cmd.WaitForClusterInState(state)
 }
 
 func CheckHTTPResponseWithRetry(retryCount int, retryWait string, address string, expectedStatusCode int) error {
@@ -185,7 +194,7 @@ func CheckHTTPResponseWithRetry(retryCount int, retryWait string, address string
 		time.Sleep(retryDuration)
 	}
 
-	return fmt.Errorf("Got %d as Status Code instead of expected %d", resp.StatusCode, expectedStatusCode)
+	return fmt.Errorf("got %d as Status Code instead of expected %d", resp.StatusCode, expectedStatusCode)
 }
 
 func CheckOutputMatchWithRetry(retryCount int, retryTime string, command string, expected string, expectedOutput string) error {
@@ -218,16 +227,7 @@ func CheckOutputMatchWithRetry(retryCount int, retryTime string, command string,
 // CheckCRCStatus checks that output of status command
 // matches given regex
 func CheckCRCStatus(state string) error {
-	expression := `.*OpenShift: .*Running \(v\d+\.\d+\.\d+.*\).*`
-	if state == "stopped" {
-		expression = ".*OpenShift: .*Stopped.*"
-	}
-
-	err := clicumber.ExecuteCommand("crc status --log-level debug")
-	if err != nil {
-		return err
-	}
-	return clicumber.CommandReturnShouldMatch("stdout", expression)
+	return cmd.CheckCRCStatus(state)
 }
 
 func DeleteFileFromCRCHome(fileName string) error {
@@ -239,7 +239,7 @@ func DeleteFileFromCRCHome(fileName string) error {
 	}
 
 	if err := clicumber.DeleteFile(theFile); err != nil {
-		return fmt.Errorf("Error deleting file %v", theFile)
+		return fmt.Errorf("error deleting file %v", theFile)
 	}
 	return nil
 }
@@ -278,9 +278,9 @@ func ConfigFileInCRCHomeContainsKeyMatchingValue(format string, configFile strin
 		return err
 	}
 	if (condition == "contains") && !matches {
-		return fmt.Errorf("For key '%s' config contains unexpected value '%s'", keyPath, keyValue)
+		return fmt.Errorf("for key '%s' config contains unexpected value '%s'", keyPath, keyValue)
 	} else if (condition == "does not contain") && matches {
-		return fmt.Errorf("For key '%s' config contains value '%s', which it should not contain", keyPath, keyValue)
+		return fmt.Errorf("for key '%s' config contains value '%s', which it should not contain", keyPath, keyValue)
 	}
 	return nil
 }
@@ -300,9 +300,9 @@ func ConfigFileInCRCHomeContainsKey(format string, configFile string, condition 
 	}
 
 	if (condition == "contains") && (keyValue == "<nil>") {
-		return fmt.Errorf("Config does not contain any value for key %s", keyPath)
+		return fmt.Errorf("config does not contain any value for key %s", keyPath)
 	} else if (condition == "does not contain") && (keyValue != "<nil>") {
-		return fmt.Errorf("Config contains key %s with assigned value: %s", keyPath, keyValue)
+		return fmt.Errorf("config contains key %s with assigned value: %s", keyPath, keyValue)
 	}
 
 	return nil
