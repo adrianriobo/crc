@@ -15,7 +15,7 @@ const (
 	installScript       string = "install.applescript"
 )
 
-type InstallerApplescriptHandler struct {
+type applescriptHandler struct {
 	CurrentUserPassword *string
 	InstallerPath       *string
 }
@@ -23,7 +23,7 @@ type InstallerApplescriptHandler struct {
 func NewInstaller(currentUserPassword *string, installerPath *string) Installer {
 	// TODO check parameters as they are mandatory otherwise exit
 	if runtime.GOOS == "darwin" {
-		return InstallerApplescriptHandler{
+		return applescriptHandler{
 			CurrentUserPassword: currentUserPassword,
 			InstallerPath:       installerPath}
 
@@ -41,9 +41,9 @@ func RequiredResourcesPath() (string, error) {
 	return "", fmt.Errorf("error recovering required resources for applescript installer handler")
 }
 
-func (i InstallerApplescriptHandler) Install() error {
+func (a applescriptHandler) Install() error {
 	command := strings.Join(append([]string{"osascript"},
-		installScript, *i.InstallerPath,
-		*i.CurrentUserPassword), " ")
+		installScript, *a.InstallerPath,
+		*a.CurrentUserPassword), " ")
 	return clicumber.ExecuteCommandSucceedsOrFails(command, "succeeds")
 }

@@ -12,7 +12,7 @@ import (
 	applescriptHelper "github.com/code-ready/crc/test/extended/os/applescript"
 )
 
-type NotificationApplescriptHandler struct {
+type applescriptHandler struct {
 }
 
 const (
@@ -27,7 +27,7 @@ const (
 
 func NewNotification() Notification {
 	if runtime.GOOS == "darwin" {
-		return NotificationApplescriptHandler{}
+		return applescriptHandler{}
 
 	}
 	return nil
@@ -42,20 +42,20 @@ func RequiredResourcesPath() (string, error) {
 	return "", fmt.Errorf("error recovering required resources for applescript notification handler")
 }
 
-func (n NotificationApplescriptHandler) GetClusterRunning() error {
+func (a applescriptHandler) GetClusterRunning() error {
 	return checkNotificationMessage(startMessage)
 }
 
-func (n NotificationApplescriptHandler) GetClusterStopped() error {
+func (a applescriptHandler) GetClusterStopped() error {
 	return checkNotificationMessage(stopMessage)
 
 }
 
-func (n NotificationApplescriptHandler) GetClusterDeleted() error {
+func (a applescriptHandler) GetClusterDeleted() error {
 	return checkNotificationMessage(deleteMessage)
 }
 
-func (n NotificationApplescriptHandler) ClearNotifications() error {
+func (a applescriptHandler) ClearNotifications() error {
 	return applescriptHelper.ExecuteApplescript(manageNotifications, manageNotificationActionClear)
 }
 

@@ -6,13 +6,13 @@ import (
 	"fmt"
 )
 
-type TrayAutoitHandler struct {
+type autoitHandler struct {
 	BundleLocation *string
 	PullSecretFile *string
 }
 
 func NewTray(bundleLocationValue *string, pullSecretFileValue *string) Tray {
-	return TrayAutoitHandler{
+	return autoitHandler{
 		BundleLocation: bundleLocationValue,
 		PullSecretFile: pullSecretFileValue}
 
@@ -22,58 +22,58 @@ func RequiredResourcesPath() (string, error) {
 	return "", nil
 }
 
-func (t TrayApplescriptHandler) Install() error {
+func (a autoitHandler) Install() error {
 	return fmt.Errorf("not implemented yet")
 }
 
-func (t TrayApplescriptHandler) IsInstalled() error {
+func (a autoitHandler) IsInstalled() error {
 	return fmt.Errorf("not implemented yet")
 }
 
-func (t TrayApplescriptHandler) IsAccessible() error {
+func (a autoitHandler) IsAccessible() error {
 	return fmt.Errorf("not implemented yet")
 }
 
-func (t TrayApplescriptHandler) ClickStart() error {
+func (a autoitHandler) ClickStart() error {
 	return fmt.Errorf("not implemented yet")
 }
 
-func (t TrayApplescriptHandler) ClickStop() error {
+func (a autoitHandler) ClickStop() error {
 	return fmt.Errorf("not implemented yet")
 }
 
-func (t TrayApplescriptHandler) ClickDelete() error {
+func (a autoitHandler) ClickDelete() error {
 	return fmt.Errorf("not implemented yet")
 }
 
-func (t TrayApplescriptHandler) ClickQuit() error {
+func (a autoitHandler) ClickQuit() error {
 	return fmt.Errorf("not implemented yet")
 }
 
-func (t TrayApplescriptHandler) SetPullSecretFile() error {
+func (a autoitHandler) SetPullSecretFile() error {
 	return fmt.Errorf("not implemented yet")
 }
 
-func (t TrayApplescriptHandler) IsClusterRunning() error {
+func (a autoitHandler) IsClusterRunning() error {
 	return fmt.Errorf("not implemented yet")
 }
 
-func (t TrayApplescriptHandler) IsClusterStopped() error {
+func (a autoitHandler) IsClusterStopped() error {
 	return fmt.Errorf("not implemented yet")
 }
 
-func (t TrayApplescriptHandler) CopyOCLoginCommandAsKubeadmin() error {
+func (a autoitHandler) CopyOCLoginCommandAsKubeadmin() error {
 	return fmt.Errorf("not implemented yet")
 }
 
-func (t TrayApplescriptHandler) CopyOCLoginCommandAsDeveloper() error {
+func (a autoitHandler) CopyOCLoginCommandAsDeveloper() error {
 	return fmt.Errorf("not implemented yet")
 }
 
-func (t TrayApplescriptHandler) ConnectClusterAsKubeadmin() error {
+func (a autoitHandler) ConnectClusterAsKubeadmin() error {
 	return fmt.Errorf("not implemented yet")
 }
 
-func (t TrayApplescriptHandler) ConnectClusterAsDeveloper() error {
+func (a autoitHandler) ConnectClusterAsDeveloper() error {
 	return fmt.Errorf("not implemented yet")
 }

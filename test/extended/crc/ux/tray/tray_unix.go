@@ -54,14 +54,14 @@ var (
 	}
 )
 
-type TrayApplescriptHandler struct {
+type applescriptHandler struct {
 	BundleLocation *string
 	PullSecretFile *string
 }
 
 func NewTray(bundleLocationValue *string, pullSecretFileValue *string) Tray {
 	if runtime.GOOS == "darwin" {
-		return TrayApplescriptHandler{
+		return applescriptHandler{
 			BundleLocation: bundleLocationValue,
 			PullSecretFile: pullSecretFileValue}
 
@@ -78,7 +78,7 @@ func RequiredResourcesPath() (string, error) {
 	return "", fmt.Errorf("error recovering required resources for applescript tray handler")
 }
 
-func (t TrayApplescriptHandler) Install() error {
+func (a applescriptHandler) Install() error {
 	err := clicumber.ExecuteCommandSucceedsOrFails("crc setup", "succeeds")
 	if err != nil {
 		return err
@@ -88,60 +88,60 @@ func (t TrayApplescriptHandler) Install() error {
 	return applescriptHelper.ExecuteApplescript(installTray, sanitizedAppPath)
 }
 
-func (t TrayApplescriptHandler) IsInstalled() error {
+func (a applescriptHandler) IsInstalled() error {
 	return executeCommandSucceeds("launchctl list | grep crc", "0.*tray")
 }
 
-func (t TrayApplescriptHandler) IsAccessible() error {
+func (a applescriptHandler) IsAccessible() error {
 	return checkAccessible(func() error {
 		return applescriptHelper.ExecuteApplescript(
 			checkTrayIconIsVisible, bundleIdentifier)
 	}, "Tray icon")
 }
 
-func (t TrayApplescriptHandler) ClickStart() error {
+func (a applescriptHandler) ClickStart() error {
 	return clickButtonByAction(actionStart)
 }
 
-func (t TrayApplescriptHandler) ClickStop() error {
+func (a applescriptHandler) ClickStop() error {
 	return clickButtonByAction(actionStop)
 }
 
-func (t TrayApplescriptHandler) ClickDelete() error {
+func (a applescriptHandler) ClickDelete() error {
 	return clickButtonByAction(actionDelete)
 }
 
-func (t TrayApplescriptHandler) ClickQuit() error {
+func (a applescriptHandler) ClickQuit() error {
 	return clickButtonByAction(actionQuit)
 }
 
-func (t TrayApplescriptHandler) SetPullSecretFile() error {
+func (a applescriptHandler) SetPullSecretFile() error {
 	return applescriptHelper.ExecuteApplescript(
-		setPullSecretFile, bundleIdentifier, *t.PullSecretFile)
+		setPullSecretFile, bundleIdentifier, *a.PullSecretFile)
 }
 
-func (t TrayApplescriptHandler) IsClusterRunning() error {
+func (a applescriptHandler) IsClusterRunning() error {
 	return checkTrayShowsFieldWithValue(fieldState, stateRunning)
 }
 
-func (t TrayApplescriptHandler) IsClusterStopped() error {
+func (a applescriptHandler) IsClusterStopped() error {
 	return checkTrayShowsFieldWithValue(fieldState, stateStopped)
 }
 
-func (t TrayApplescriptHandler) CopyOCLoginCommandAsKubeadmin() error {
+func (a applescriptHandler) CopyOCLoginCommandAsKubeadmin() error {
 	return clickCopyOCLoginCommand(userKubeadmin)
 }
 
-func (t TrayApplescriptHandler) CopyOCLoginCommandAsDeveloper() error {
+func (a applescriptHandler) CopyOCLoginCommandAsDeveloper() error {
 	return clickCopyOCLoginCommand(userDeveloper)
 }
 
-func (t TrayApplescriptHandler) ConnectClusterAsKubeadmin() error {
+func (a applescriptHandler) ConnectClusterAsKubeadmin() error {
 	return applescriptHelper.ExecuteApplescriptReturnShouldMatch(
 		userKubeadmin, runOCLoginCommand)
 }
 
-func (t TrayApplescriptHandler) ConnectClusterAsDeveloper() error {
+func (a applescriptHandler) ConnectClusterAsDeveloper() error {
 	return applescriptHelper.ExecuteApplescriptReturnShouldMatch(
 		userDeveloper, runOCLoginCommand)
 }
