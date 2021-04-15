@@ -257,8 +257,6 @@ github.com/segmentio/analytics-go
 # github.com/segmentio/backo-go v0.0.0-20200129164019-23eae7c10bd3
 ## explicit
 github.com/segmentio/backo-go
-# github.com/shadow1163/goautoit v0.0.0-20190627080114-4aa9ce277b8b
-## explicit
 # github.com/sirupsen/logrus v1.7.0
 ## explicit
 github.com/sirupsen/logrus

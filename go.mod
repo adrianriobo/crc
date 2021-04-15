@@ -40,7 +40,6 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/segmentio/analytics-go v3.1.0+incompatible
 	github.com/segmentio/backo-go v0.0.0-20200129164019-23eae7c10bd3 // indirect
-	github.com/shadow1163/goautoit v0.0.0-20190627080114-4aa9ce277b8b // indirect
 	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/afero v1.4.1 // indirect
 	github.com/spf13/cast v1.3.1

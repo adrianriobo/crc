@@ -82,10 +82,6 @@ github.com/VividCortex/ewma v1.1.1 h1:MnEK4VOv6n0RSY4vtRe3h11qjxL3+t0B8yOL8iMXdc
 github.com/VividCortex/ewma v1.1.1/go.mod h1:2Tkkvm3sRDVXaiyucHiACn4cqf7DpdyLvmxzcbUokwA=
 github.com/YourFin/binappend v0.0.0-20181105185800-0add4bf0b9ad h1:OUogh+sUEo6yRwGEkqifcr3MfXNi0AtdCSwh7H8yTUM=
 github.com/YourFin/binappend v0.0.0-20181105185800-0add4bf0b9ad/go.mod h1:QhzJSct0NZ/q7HOtQrw867061u93HYPWa4KTotzdzls=
-github.com/adrianriobo/goautoit v0.0.0-20210415125814-95a7139ec919 h1:uC9kd5S5cv2MfOyidGYglflAQ1x9ztYN/Nun8kqEUT8=
-github.com/adrianriobo/goautoit v0.0.0-20210415125814-95a7139ec919/go.mod h1:tKnCmOA6c/aHEc/rnnRjPMVG3YfAfCMMMuYbW8caej4=
-github.com/adrianriobo/goautoit v0.0.0-20210415133625-3410251e989e h1:IZkyhx9n/7V+Po6VYs+OgqfYWAwZYL7gCLR3vFwJVe8=
-github.com/adrianriobo/goautoit v0.0.0-20210415133625-3410251e989e/go.mod h1:tKnCmOA6c/aHEc/rnnRjPMVG3YfAfCMMMuYbW8caej4=
 github.com/adrianriobo/goautoit v0.0.0-20210415141646-fc37def5a975 h1:3k1SNJREvY7Vb068kqfS4xXPJVIPhBXUBUHpyvV8W/w=
 github.com/adrianriobo/goautoit v0.0.0-20210415141646-fc37def5a975/go.mod h1:tKnCmOA6c/aHEc/rnnRjPMVG3YfAfCMMMuYbW8caej4=
 github.com/agnivade/levenshtein v1.0.1/go.mod h1:CURSv5d9Uaml+FovSIICkLbAUZ9S4RqaHDIsdSBg7lM=
@@ -783,8 +779,6 @@ github.com/segmentio/analytics-go v3.1.0+incompatible/go.mod h1:C7CYBtQWk4vRk2Ry
 github.com/segmentio/backo-go v0.0.0-20200129164019-23eae7c10bd3 h1:ZuhckGJ10ulaKkdvJtiAqsLTiPrLaXSdnVgXJKJkTxE=
 github.com/segmentio/backo-go v0.0.0-20200129164019-23eae7c10bd3/go.mod h1:9/Rh6yILuLysoQnZ2oNooD2g7aBnvM7r/fNVxRNWfBc=
 github.com/sergi/go-diff v1.0.0/go.mod h1:0CfEIISq7TuYL3j771MWULgwwjU+GofnZX9QAmXWZgo=
-github.com/shadow1163/goautoit v0.0.0-20190627080114-4aa9ce277b8b h1:y3S4bf/aB15R/hYmPzhPQ43T/ae8EUFmpq1HB1SRfuo=
-github.com/shadow1163/goautoit v0.0.0-20190627080114-4aa9ce277b8b/go.mod h1:W/p3CvwSrZFUdtEMhQn6+8Vj1LPQP3u43psKeB6zgYk=
 github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24/go.mod h1:M+9NzErvs504Cn4c5DxATwIqPbtswREoFCre64PpcG4=
 github.com/shurcooL/sanitized_anchor_name v1.0.0/go.mod h1:1NzhyTcUVG4SuEtjjoZeVRXNmyL/1OwPU0+IJeTBvfc=
 github.com/sirupsen/logrus v1.0.4-0.20170822132746-89742aefa4b2/go.mod h1:pMByvHTf9Beacp5x1UXfOR9xyW/9antXMhjMPG0dEzc=
