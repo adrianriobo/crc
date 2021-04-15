@@ -15,7 +15,7 @@ github.com/VividCortex/ewma
 # github.com/YourFin/binappend v0.0.0-20181105185800-0add4bf0b9ad
 ## explicit
 github.com/YourFin/binappend
-# github.com/adrianriobo/goautoit v0.0.0-20210415133625-3410251e989e
+# github.com/adrianriobo/goautoit v0.0.0-20210415141646-fc37def5a975
 ## explicit
 github.com/adrianriobo/goautoit
 github.com/adrianriobo/goautoit/external
