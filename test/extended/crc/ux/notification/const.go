@@ -1,12 +1,4 @@
-package applescript
-
-const (
-	scriptsRelativePath string = "darwin/applescript/scripts"
-
-	manageNotifications           string = "manageNotifications.applescript"
-	manageNotificationActionGet   string = "get"
-	manageNotificationActionClear string = "clear"
-)
+package notification
 
 const (
 	startMessage  string = "OpenShift Cluster is running"

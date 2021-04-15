@@ -1,4 +1,6 @@
-package applescript
+// +build !windows
+
+package tray
 
 import (
 	"fmt"
@@ -12,14 +14,59 @@ import (
 	applescriptHelper "github.com/code-ready/crc/test/extended/os/applescript"
 )
 
-type Element struct {
-	Name         string
-	AXIdentifier string
-}
+const (
+	scriptsRelativePath    string = "scripts"
+	checkTrayIconIsVisible string = "checkTrayIconIsVisible.applescript"
+	clickTrayMenuItem      string = "clickTrayMenuItem.applescript"
+	setPullSecretFile      string = "setPullSecretFile.applescript"
+	getTrayFieldlValue     string = "getTrayFieldlValue.applescript"
+	installTray            string = "installTray.applescript"
+	getOCLoginCommand      string = "getOCLoginCommand.applescript"
+	runOCLoginCommand      string = "runOCLoginCommand.applescript"
+
+	bundleIdentifier string = "com.redhat.codeready.containers"
+	appPath          string = "/Applications/CodeReady Containers.app"
+)
+
+var (
+	elements = []Element{
+		{
+			Name:         actionStart,
+			AXIdentifier: "start"},
+		{
+			Name:         actionStop,
+			AXIdentifier: "stop"},
+		{
+			Name:         actionDelete,
+			AXIdentifier: "delete"},
+		{
+			Name:         actionQuit,
+			AXIdentifier: "quit"},
+		{
+			Name:         fieldState,
+			AXIdentifier: "cluster_status"},
+		{
+			Name:         userKubeadmin,
+			AXIdentifier: "kubeadmin_login"},
+		{
+			Name:         userDeveloper,
+			AXIdentifier: "developer_login"},
+	}
+)
 
 type TrayApplescriptHandler struct {
 	BundleLocation *string
 	PullSecretFile *string
+}
+
+func NewTray(bundleLocationValue *string, pullSecretFileValue *string) Tray {
+	if runtime.GOOS == "darwin" {
+		return TrayApplescriptHandler{
+			BundleLocation: bundleLocationValue,
+			PullSecretFile: pullSecretFileValue}
+
+	}
+	return nil
 }
 
 func RequiredResourcesPath() (string, error) {

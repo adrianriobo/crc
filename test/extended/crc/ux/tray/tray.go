@@ -1,11 +1,5 @@
 package tray
 
-import (
-	"runtime"
-
-	"github.com/code-ready/crc/test/extended/crc/ux/tray/darwin/applescript"
-)
-
 type Tray interface {
 	Install() error
 	IsInstalled() error
@@ -24,19 +18,7 @@ type Tray interface {
 	ConnectClusterAsDeveloper() error
 }
 
-func NewTray(bundleLocationValue *string, pullSecretFileValue *string) Tray {
-	if runtime.GOOS == "darwin" {
-		return applescript.TrayApplescriptHandler{
-			BundleLocation: bundleLocationValue,
-			PullSecretFile: pullSecretFileValue}
-
-	}
-	return nil
-}
-
-func RequiredResourcesPath() (string, error) {
-	if runtime.GOOS == "darwin" {
-		return applescript.RequiredResourcesPath()
-	}
-	return "", nil
+type Element struct {
+	Name         string
+	AXIdentifier string
 }

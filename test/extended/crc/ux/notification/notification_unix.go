@@ -1,4 +1,6 @@
-package applescript
+// +build !windows
+
+package notification
 
 import (
 	"fmt"
@@ -14,9 +16,22 @@ type NotificationApplescriptHandler struct {
 }
 
 const (
+	scriptsRelativePath           string = "scripts"
+	manageNotifications           string = "manageNotifications.applescript"
+	manageNotificationActionGet   string = "get"
+	manageNotificationActionClear string = "clear"
+
 	notificationDelay   string = "5s"
 	notificationRetries int    = 36
 )
+
+func NewNotification() Notification {
+	if runtime.GOOS == "darwin" {
+		return NotificationApplescriptHandler{}
+
+	}
+	return nil
+}
 
 func RequiredResourcesPath() (string, error) {
 	_, filename, _, ok := runtime.Caller(1)

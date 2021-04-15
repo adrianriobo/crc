@@ -1,4 +1,4 @@
-package applescript
+package installer
 
 import (
 	"fmt"
@@ -10,9 +10,25 @@ import (
 	clicumber "github.com/code-ready/clicumber/testsuite"
 )
 
+const (
+	scriptsRelativePath string = "scripts"
+	installScript       string = "install.applescript"
+)
+
 type InstallerApplescriptHandler struct {
 	CurrentUserPassword *string
 	InstallerPath       *string
+}
+
+func NewInstaller(currentUserPassword *string, installerPath *string) Installer {
+	// TODO check parameters as they are mandatory otherwise exit
+	if runtime.GOOS == "darwin" {
+		return InstallerApplescriptHandler{
+			CurrentUserPassword: currentUserPassword,
+			InstallerPath:       installerPath}
+
+	}
+	return nil
 }
 
 func RequiredResourcesPath() (string, error) {
