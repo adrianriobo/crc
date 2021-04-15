@@ -1,3 +1,5 @@
+// +build !windows
+
 package tray
 
 // TODO check if move to tray package

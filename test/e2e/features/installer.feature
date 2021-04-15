@@ -3,7 +3,7 @@ Feature: Installer
 
     Test CRC installer 
 
-    @darwin
+    @darwin @windows
     Scenario: Install CRC 
         Given a environment where CRC is not installed
         When install CRC from installer

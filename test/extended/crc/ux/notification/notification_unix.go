@@ -4,12 +4,10 @@ package notification
 
 import (
 	"fmt"
-	"path"
-	"path/filepath"
 	"runtime"
 	"time"
 
-	applescriptHelper "github.com/code-ready/crc/test/extended/os/applescript"
+	"github.com/code-ready/crc/test/extended/os/applescript"
 )
 
 type applescriptHandler struct {
@@ -34,12 +32,7 @@ func NewNotification() Notification {
 }
 
 func RequiredResourcesPath() (string, error) {
-	_, filename, _, ok := runtime.Caller(1)
-	if ok {
-		return filepath.Join(path.Dir(filename),
-			scriptsRelativePath), nil
-	}
-	return "", fmt.Errorf("error recovering required resources for applescript notification handler")
+	return applescript.GetScriptsPath(scriptsRelativePath)
 }
 
 func (a applescriptHandler) GetClusterRunning() error {
@@ -56,7 +49,7 @@ func (a applescriptHandler) GetClusterDeleted() error {
 }
 
 func (a applescriptHandler) ClearNotifications() error {
-	return applescriptHelper.ExecuteApplescript(manageNotifications, manageNotificationActionClear)
+	return applescript.ExecuteApplescript(manageNotifications, manageNotificationActionClear)
 }
 
 func checkNotificationMessage(notificationMessage string) error {
@@ -65,7 +58,7 @@ func checkNotificationMessage(notificationMessage string) error {
 		return err
 	}
 	for i := 0; i < notificationRetries; i++ {
-		err := applescriptHelper.ExecuteApplescriptReturnShouldMatch(
+		err := applescript.ExecuteApplescriptReturnShouldMatch(
 			notificationMessage, manageNotifications, manageNotificationActionGet)
 		if err == nil {
 			return nil

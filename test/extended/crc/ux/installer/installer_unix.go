@@ -1,13 +1,11 @@
 package installer
 
 import (
-	"fmt"
-	"path"
-	"path/filepath"
 	"runtime"
 	"strings"
 
 	clicumber "github.com/code-ready/clicumber/testsuite"
+	applescript "github.com/code-ready/crc/test/extended/os/applescript"
 )
 
 const (
@@ -32,13 +30,7 @@ func NewInstaller(currentUserPassword *string, installerPath *string) Installer 
 }
 
 func RequiredResourcesPath() (string, error) {
-	_, filename, _, ok := runtime.Caller(1)
-	if ok {
-		return string(path.Dir(filename) +
-			string(filepath.Separator) +
-			scriptsRelativePath), nil
-	}
-	return "", fmt.Errorf("error recovering required resources for applescript installer handler")
+	return applescript.GetScriptsPath(scriptsRelativePath)
 }
 
 func (a applescriptHandler) Install() error {

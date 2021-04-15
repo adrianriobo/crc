@@ -4,14 +4,12 @@ package tray
 
 import (
 	"fmt"
-	"path"
-	"path/filepath"
 	"runtime"
 	"strings"
 	"time"
 
 	clicumber "github.com/code-ready/clicumber/testsuite"
-	applescriptHelper "github.com/code-ready/crc/test/extended/os/applescript"
+	"github.com/code-ready/crc/test/extended/os/applescript"
 )
 
 const (
@@ -70,12 +68,7 @@ func NewTray(bundleLocationValue *string, pullSecretFileValue *string) Tray {
 }
 
 func RequiredResourcesPath() (string, error) {
-	_, filename, _, ok := runtime.Caller(1)
-	if ok {
-		return filepath.Join(path.Dir(filename),
-			scriptsRelativePath), nil
-	}
-	return "", fmt.Errorf("error recovering required resources for applescript tray handler")
+	return applescript.GetScriptsPath(scriptsRelativePath)
 }
 
 func (a applescriptHandler) Install() error {
@@ -85,7 +78,7 @@ func (a applescriptHandler) Install() error {
 	}
 	// Required to pass parameters with spaces to applescript
 	sanitizedAppPath := strings.Join(append([]string{"\""}, appPath, "\""), "")
-	return applescriptHelper.ExecuteApplescript(installTray, sanitizedAppPath)
+	return applescript.ExecuteApplescript(installTray, sanitizedAppPath)
 }
 
 func (a applescriptHandler) IsInstalled() error {
@@ -94,7 +87,7 @@ func (a applescriptHandler) IsInstalled() error {
 
 func (a applescriptHandler) IsAccessible() error {
 	return checkAccessible(func() error {
-		return applescriptHelper.ExecuteApplescript(
+		return applescript.ExecuteApplescript(
 			checkTrayIconIsVisible, bundleIdentifier)
 	}, "Tray icon")
 }
@@ -116,7 +109,7 @@ func (a applescriptHandler) ClickQuit() error {
 }
 
 func (a applescriptHandler) SetPullSecretFile() error {
-	return applescriptHelper.ExecuteApplescript(
+	return applescript.ExecuteApplescript(
 		setPullSecretFile, bundleIdentifier, *a.PullSecretFile)
 }
 
@@ -137,12 +130,12 @@ func (a applescriptHandler) CopyOCLoginCommandAsDeveloper() error {
 }
 
 func (a applescriptHandler) ConnectClusterAsKubeadmin() error {
-	return applescriptHelper.ExecuteApplescriptReturnShouldMatch(
+	return applescript.ExecuteApplescriptReturnShouldMatch(
 		userKubeadmin, runOCLoginCommand)
 }
 
 func (a applescriptHandler) ConnectClusterAsDeveloper() error {
-	return applescriptHelper.ExecuteApplescriptReturnShouldMatch(
+	return applescript.ExecuteApplescriptReturnShouldMatch(
 		userDeveloper, runOCLoginCommand)
 }
 
@@ -159,7 +152,7 @@ func clickOnElement(elementName string, scriptName string) error {
 	if err != nil {
 		return err
 	}
-	return applescriptHelper.ExecuteApplescript(
+	return applescript.ExecuteApplescript(
 		scriptName, bundleIdentifier, element.AXIdentifier)
 }
 
@@ -168,7 +161,7 @@ func checkTrayShowsFieldWithValue(field string, expectedValue string) error {
 	if err != nil {
 		return err
 	}
-	return applescriptHelper.ExecuteApplescriptReturnShouldMatch(
+	return applescript.ExecuteApplescriptReturnShouldMatch(
 		expectedValue, getTrayFieldlValue, bundleIdentifier, element.AXIdentifier)
 }
 
