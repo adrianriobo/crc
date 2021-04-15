@@ -5,7 +5,7 @@ package installer
 import (
 	"fmt"
 
-	goautoit "github.com/shadow1163/goautoit"
+	goautoit "github.com/adrianriobo/goautoit"
 )
 
 type autoitHandler struct {

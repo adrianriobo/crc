@@ -15,6 +15,10 @@ github.com/VividCortex/ewma
 # github.com/YourFin/binappend v0.0.0-20181105185800-0add4bf0b9ad
 ## explicit
 github.com/YourFin/binappend
+# github.com/adrianriobo/goautoit v0.0.0-20210415125814-95a7139ec919
+## explicit
+github.com/adrianriobo/goautoit
+github.com/adrianriobo/goautoit/external
 # github.com/alexbrainman/sspi v0.0.0-20180613141037-e580b900e9f5
 github.com/alexbrainman/sspi
 github.com/alexbrainman/sspi/negotiate
@@ -255,7 +259,6 @@ github.com/segmentio/analytics-go
 github.com/segmentio/backo-go
 # github.com/shadow1163/goautoit v0.0.0-20190627080114-4aa9ce277b8b
 ## explicit
-github.com/shadow1163/goautoit
 # github.com/sirupsen/logrus v1.7.0
 ## explicit
 github.com/sirupsen/logrus

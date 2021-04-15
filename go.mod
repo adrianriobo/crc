@@ -6,6 +6,7 @@ require (
 	github.com/Masterminds/semver v1.5.0
 	github.com/Microsoft/go-winio v0.4.15-0.20200908182639-5b44b70ab3ab
 	github.com/YourFin/binappend v0.0.0-20181105185800-0add4bf0b9ad
+	github.com/adrianriobo/goautoit v0.0.0-20210415125814-95a7139ec919
 	github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef
 	github.com/cavaliercoder/grab v2.0.0+incompatible
 	github.com/cheggaaa/pb/v3 v3.0.5
@@ -39,7 +40,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/segmentio/analytics-go v3.1.0+incompatible
 	github.com/segmentio/backo-go v0.0.0-20200129164019-23eae7c10bd3 // indirect
-	github.com/shadow1163/goautoit v0.0.0-20190627080114-4aa9ce277b8b
+	github.com/shadow1163/goautoit v0.0.0-20190627080114-4aa9ce277b8b // indirect
 	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/afero v1.4.1 // indirect
 	github.com/spf13/cast v1.3.1
