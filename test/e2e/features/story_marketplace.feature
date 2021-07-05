@@ -74,5 +74,5 @@ Feature: Operator from marketplace
     Scenario: Clean up
         When executing "crc delete -f" succeeds
         Then stdout should contain "Deleted the OpenShift cluster"
-        When executing "crc cleanup" succeeds
-        Then stdout should contain "Cleanup finished"
+        # When executing "crc cleanup" succeeds
+        # Then stdout should contain "Cleanup finished"
