@@ -15,6 +15,12 @@ const (
 	CRCExecutableNotInstalled = "notInstalled"
 )
 
+type Command struct {
+	Action             string
+	DisableUpdateCheck bool
+	DisableNTP         bool
+}
+
 func SetConfigPropertyToValueSucceedsOrFails(property string, value string, expected string) error {
 	cmd := "crc config set " + property + " " + value
 	return clicumber.ExecuteCommandSucceedsOrFails(cmd, expected)
