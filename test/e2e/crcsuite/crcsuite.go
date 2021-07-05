@@ -112,11 +112,11 @@ func FeatureContext(s *godog.Suite) {
 		}
 
 		// remove $HOME/.crc
-		err = util.RemoveCRCHome(CRCHome)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+		// err = util.RemoveCRCHome(CRCHome)
+		// if err != nil {
+		// 	fmt.Println(err)
+		// 	os.Exit(1)
+		// }
 
 		if !bundleEmbedded {
 			if _, err := os.Stat(bundleLocation); err != nil {
