@@ -4,9 +4,15 @@ Feature: Basic test
     User explores some of the top-level CRC commands while going
     through the lifecycle of CRC.
 
-    @darwin @linux @windows
+    @darwin @linux
     Scenario: CRC version
         When executing "CRC_DISABLE_UPDATE_CHECK=true crc version" succeeds
+        Then stderr should be empty
+        And stdout should contain "version:"
+
+    @windows
+    Scenario: CRC version
+        When executing "$env:CRC_DISABLE_UPDATE_CHECK=true; crc version" succeeds
         Then stderr should be empty
         And stdout should contain "version:"
 
