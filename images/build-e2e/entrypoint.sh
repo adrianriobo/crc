@@ -2,10 +2,10 @@
 
 # Vars
 BYNARY=e2e.test
-if [[ ${PLATOFORM} == 'windows' ]]; then
+if [[ ${PLATFORM} == 'windows' ]]; then
     BYNARY=e2e.test.exe
 fi
-BINARY_PATH="/opt/crc/bin/${PLATOFORM}-amd64/${CRC_E2E_BYNARY}"
+BINARY_PATH="/opt/crc/bin/${PLATFORM}-amd64/${CRC_E2E_BYNARY}"
 FEATURES_PATH=/opt/crc/features
 RESULTS_PATH="${RESULTS_PATH:-/output}"
 
@@ -16,17 +16,27 @@ fi
 # Validate conf
 validate=true
 [[ -z "${TARGET_HOST}" ]] \
-    && echo "TARGET_HOST requried" \
+    && echo "TARGET_HOST required" \
     && validate=false
 
 [[ -z "${TARGET_HOST_USERNAME}" ]] \
-    && echo "TARGET_HOST_USERNAME requried" \
+    && echo "TARGET_HOST_USERNAME required" \
     && validate=false
 
 [[ -z "${TARGET_HOST_KEY_PATH}" && -z "${TARGET_HOST_PASSWORD}" ]] \
     && echo "TARGET_HOST_KEY_PATH or TARGET_HOST_PASSWORD required" \
     && validate=false
 [[ $validate == false ]] && exit 1
+
+[[ -z "${PULL_SECRET_FILE_PATH}" ]] \
+    && echo "PULL_SECRET_FILE_PATH required" \
+    && validate=false
+
+# Define remote connection
+REMOTE="${TARGET_HOST_USERNAME}@${TARGET_HOST}"
+if [[ ! -z "${TARGET_HOST_DOMAIN}" ]]; then
+    REMOTE="${TARGET_HOST_USERNAME}@${TARGET_HOST_DOMAIN}@${TARGET_HOST}"
+fi
 
 # Set SCP / SSH command with pass or key
 NO_STRICT='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
@@ -44,14 +54,14 @@ fi
 DATA_FOLDER="${EXECUTION_FOLDER}/out"
 if [[ ${PLATOFORM} == 'windows' ]]; then
     # Todo change for powershell cmdlet
-    $SSH "${TARGET_HOST_USERNAME}@${TARGET_HOST}" "mkdir -p ${EXECUTION_FOLDER} 
+    $SSH "${REMOTE}" "powershell.exe -c New-Item -ItemType directory -Path ${EXECUTION_FOLDER}"
 else
-    $SSH "${TARGET_HOST_USERNAME}@${TARGET_HOST}" "mkdir -p ${EXECUTION_FOLDER} 
+    $SSH "${REMOTE}" "mkdir -p ${EXECUTION_FOLDER}"
 fi
 
 # Copy crc-e2e binary and features spec to target host
-$SCP "${BINARY_PATH}" "${TARGET_HOST_USERNAME}@${TARGET_HOST}:${EXECUTION_FOLDER}"
-$SCP "${FEATURES_PATH}" "${TARGET_HOST_USERNAME}@${TARGET_HOST}:${EXECUTION_FOLDER}"
+$SCP "${BINARY_PATH}" "${REMOTE}:${EXECUTION_FOLDER}"
+$SCP "${FEATURES_PATH}" "${REMOTE}:${EXECUTION_FOLDER}"
 
 # Run (one shot) monictl
 # TODO add run parameters
