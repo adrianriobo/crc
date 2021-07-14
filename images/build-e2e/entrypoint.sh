@@ -9,7 +9,7 @@ BINARY_PATH="/opt/crc/bin/${PLATFORM}-amd64/${BINARY}"
 # Review this when go 1.16 with embed support
 FEATURES_PATH=/opt/crc/features
 TESTDATA_PATH=/opt/crc/testdata
-APPLESCRIPTS_PATH=/opt/crc/applescripts
+UX_RESOURCES_PATH=/opt/crc/ux
 # Results
 RESULTS_PATH="${RESULTS_PATH:-/output}"
 
@@ -30,11 +30,16 @@ validate=true
 [[ -z "${TARGET_HOST_KEY_PATH+x}" && -z "${TARGET_HOST_PASSWORD+x}" ]] \
     && echo "TARGET_HOST_KEY_PATH or TARGET_HOST_PASSWORD required" \
     && validate=false
-[[ $validate == false ]] && exit 1
 
 [[ -z "${PULL_SECRET_FILE_PATH+x}" ]] \
     && echo "PULL_SECRET_FILE_PATH required" \
     && validate=false
+
+[[ -z "${BUNDLE_VERSION+x}" && -z "${BUNDLE_LOCATION+x}" ]] \
+    && echo "BUNDLE_VERSION or BUNDLE_LOCATION required" \
+    && validate=false
+
+[[ $validate == false ]] && exit 1
 
 # Define remote connection
 REMOTE="${TARGET_HOST_USERNAME}@${TARGET_HOST}"
@@ -53,34 +58,54 @@ else
 fi
 
 # Create execution folder 
-EXECUTION_FOLDER="/Users/${TARGET_HOST_USERNAME}/crc-e2e/${RANDOM}"
+EXECUTION_FOLDER="/Users/${TARGET_HOST_USERNAME}/crc-e2e"
 if [[ ${PLATFORM} == 'linux' ]]; then
-    EXECUTION_FOLDER="/home/${TARGET_HOST_USERNAME}/crc-e2e/${RANDOM}"
+    EXECUTION_FOLDER="/home/${TARGET_HOST_USERNAME}/crc-e2e"
 fi
 DATA_FOLDER="${EXECUTION_FOLDER}/out"
 if [[ ${PLATFORM} == 'windows' ]]; then
     # Todo change for powershell cmdlet
-    $SSH "${REMOTE}" "powershell.exe -c New-Item -ItemType directory -Path ${EXECUTION_FOLDER}"
+    $SSH "${REMOTE}" "powershell.exe -c New-Item -ItemType directory -Path ${EXECUTION_FOLDER}/bin"
 else
-    $SSH "${REMOTE}" "mkdir -p ${EXECUTION_FOLDER}"
+    $SSH "${REMOTE}" "mkdir -p ${EXECUTION_FOLDER}/bin"
 fi
 
 # Copy crc-e2e binary and pull-secret
-$SCP "${BINARY_PATH}" "${REMOTE}:${EXECUTION_FOLDER}"
-$SCP "${PULL_SECRET_FILE_PATH}" "${REMOTE}:${EXECUTION_FOLDER}"
+# Review this when ux feature cleanup environment 
+rm "${FEATURES_PATH}/ux.feature"
 # Review this when go 1.16 with embed support
-$SCP "${FEATURES_PATH}" "${REMOTE}:${EXECUTION_FOLDER}"
+$SCP "${BINARY_PATH}" "${REMOTE}:${EXECUTION_FOLDER}/bin"
+$SCP "${PULL_SECRET_FILE_PATH}" "${REMOTE}:${EXECUTION_FOLDER}/pull-secret"
+$SCP "${FEATURES_PATH}" "${REMOTE}:${EXECUTION_FOLDER}/bin"
+# Applescripts
+REMOTE_RESOURCES_PATH=/workspace/test/extended/crc
+$SSH "${REMOTE}" "sudo mkdir -p ${REMOTE_RESOURCES_PATH}"
+$SCP "${UX_RESOURCES_PATH}" "${REMOTE}:${EXECUTION_FOLDER}"
+$SSH "${REMOTE}" "sudo mv ${EXECUTION_FOLDER}/ux ${REMOTE_RESOURCES_PATH}"
+# Testdata files
 $SCP "${TESTDATA_PATH}" "${REMOTE}:${EXECUTION_FOLDER}"
-$SCP "${APPLESCRIPTS_PATH}" "${REMOTE}:${EXECUTION_FOLDER}"
 
-# Run e2e
-# TODO add run parameters
-# BINARY_EXEC="${EXECUTION_FOLDER}/${BYNARY} 
-# $SSH "${TARGET_HOST_USERNAME}@${TARGET_HOST}" "${BINARY_EXEC}"
+# Run e2e cmd
+if [[ ! -z "${BUNDLE_LOCATION+x}" ]]; then
+    OPTIONS="--bundle-location=${BUNDLE_LOCATION} "
+else
+    OPTIONS="--bundle-location='' --bundle-version=${BUNDLE_VERSION} "
+fi
+OPTIONS+="--pull-secret-file=${EXECUTION_FOLDER}/pull-secret "
+if [[ ${PLATFORM} == 'macos' ]]; then
+    PLATFORM="darwin"
+fi
+OPTIONS+="--godog.tags='@${PLATFORM}' --godog.format=junit"
+BINARY_EXEC="cd ${EXECUTION_FOLDER}/bin && ./${BINARY} ${OPTIONS} > e2e.results"
+# Execute command remote
+$SSH "${REMOTE}" "${BINARY_EXEC}"
 
-# # Get results
-# mkdir -p "${RESULTS_PATH}"
-# $SCP "${TARGET_HOST_USERNAME}@${TARGET_HOST}:${DATA_FOLDER}" "${RESULTS_PATH}"
+# Get results
+mkdir -p "${RESULTS_PATH}"
+$SCP "${REMOTE}:${EXECUTION_FOLDER}/bin/e2e.results" "${RESULTS_PATH}"
+$SCP "${REMOTE}:${EXECUTION_FOLDER}/bin/out/test-results" "${RESULTS_PATH}"
 
-# # Remove remote execution fodler
-# $SSH "${TARGET_HOST_USERNAME}@${TARGET_HOST}" rm -rf "${EXECUTION_FOLDER}"
+# Clenaup
+# Review this when go 1.16 with embed support
+$SSH "${REMOTE}" "sudo rm -rf /workspace"
+$SSH "${REMOTE}" "rm -rf ${EXECUTION_FOLDER}"
