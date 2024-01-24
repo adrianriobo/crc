@@ -13,7 +13,7 @@ jobs:
 
     steps:
         
-      - name: Save the GH context in an artifact
+      - name: Save the GH context in an artifacts
         shell: bash
         env:
           GH_CONTEXT: ${{ toJSON(github) }}
