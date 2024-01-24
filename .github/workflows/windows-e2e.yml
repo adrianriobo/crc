@@ -49,7 +49,7 @@ jobs:
 
           OUTCOME="pending"
           DESCRIPTION="Running e2e on Windows"
-          CONTEXT="win-ci-e2e"
+          CONTEXT="win-ci-e2e-s"
 
           # post result to commit status
           curl -L -v \
