@@ -27,6 +27,7 @@ jobs:
         go-version: ${{ matrix.go }}
 
     - name: Set path for heat.exe and light.exe
+      shell: bash
       run: echo "$WIX\\bin" >>$GITHUB_PATH
       
     - name: Build Windows installer
