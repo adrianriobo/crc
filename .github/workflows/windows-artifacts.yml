@@ -69,13 +69,13 @@ jobs:
     - name: Upload e2e ${{matrix.os}}-${{matrix.arch}}
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.IMAGE_NAME_E2E }}-gh
+        name: ${{ env.IMAGE_NAME_E2E }}-gh-${{matrix.os}}-${{matrix.arch}}
         path: ${{ env.IMAGE_NAME_E2E }}-${{matrix.os}}-${{matrix.arch}}.tar
 
     - name: Upload integration ${{matrix.os}}-${{matrix.arch}}
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.IMAGE_NAME_INTEGRATION }}-gh
+        name: ${{ env.IMAGE_NAME_INTEGRATION }}-gh-${{matrix.os}}-${{matrix.arch}}
         path: ${{ env.IMAGE_NAME_INTEGRATION }}-${{matrix.os}}-${{matrix.arch}}.tar
 
   save-gh-context:
