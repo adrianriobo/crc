@@ -36,7 +36,7 @@ jobs:
     - name: Upload windows installer artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Windows Installer (${{ matrix.os }})
+        name: windows-installer
         path: "./out/windows-amd64/crc-windows-installer.zip"
 
   build-qe:
@@ -93,5 +93,5 @@ jobs:
     - name: Upload the GH context artifact
       uses: actions/upload-artifact@v4
       with:
-        name: gh_context
+        name: gh-context
         path: gh_context.json
