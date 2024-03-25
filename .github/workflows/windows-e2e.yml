@@ -8,7 +8,7 @@ on:
   
 jobs:
   windows-e2e-ocp:
-    uses: adrianriobo/crc/.github/workflows/windows-qe-tpl.yml@fix4040-extended
+    uses: adrianriobo/crc/.github/workflows/windows-qe-tpl.yml@fix-4040-extended
     strategy:
       fail-fast: false
       matrix:
@@ -18,9 +18,11 @@ jobs:
         - qe-type: 'e2e'
           preset: 'all'
         - qe-type: 'integration'
-          preset: ['openshift', 'microshift']
+          preset: 'openshift'
+        - qe-type: 'integration'
+          preset: 'microshift'
     with:
-      workflow-id: ${{ github.event.workflow_run.workflow_id }}
+      trigger-workflow-id: ${{ github.event.workflow_run.workflow_id }}
       qe-type: ${{matrix.qe-type}}
       preset: ${{matrix.preset}}
     secrets:
