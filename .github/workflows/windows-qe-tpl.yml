@@ -5,7 +5,7 @@ name: windows-qe-tpl
 on:  
   workflow_call:  
     inputs:  
-      workflow-id:  
+      trigger-workflow-id:  
         required: true  
         type: string
       qe-type:  
@@ -36,20 +36,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        windows-version: ['10','11']
-        windows-featurepack: ['22h2-ent', '23h2-ent']
-        exclude:
-        - windows-version: '10'
-          windows-featurepack: '23h2-ent'
-        - windows-version: '11'
-          windows-featurepack: '22h2-ent'
+        windows-version: ['11']
+        windows-featurepack: ['23h2-ent']
       
     steps:
     - name: Download artifacts to be tested
       id: download-gh-context-artifact
       uses: dawidd6/action-download-artifact@v3
       with:
-        workflow: ${{inputs.workflow_id}}
+        workflow: ${{inputs.trigger-workflow-id}}
 
     - name: Set environment for the run
       run: |
