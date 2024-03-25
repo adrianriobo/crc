@@ -183,11 +183,14 @@ build_e2e: $(SOURCES)
 	go test ./test/e2e/ -tags "$(BUILDTAGS)" --ldflags="$(VERSION_VARIABLES)" -c -o $(BUILD_DIR)/e2e.test
 
 .PHONY: build_integration
+build_integration:
+ifeq ($(GOOS), linux)
+ILDFLAGS=$(LDFLAGS)
+else
+ILDFLAGS=$(LDFLAGS) -X $(MODULEPATH)/pkg/crc/version.installerBuild=true
+endif
 build_integration: $(SOURCES)
-	GOARCH=amd64 GOOS=linux   go test ./test/integration/ -tags "$(BUILDTAGS)" --ldflags="$(VERSION_VARIABLES)" -c -o $(BUILD_DIR)/linux-amd64/integration.test
-	GOARCH=amd64 GOOS=windows go test -tags "$(BUILDTAGS)" --ldflags="-X $(MODULEPATH)/pkg/crc/version.installerBuild=true $(VERSION_VARIABLES)" ./test/integration/ -c -o $(BUILD_DIR)/windows-amd64/integration.test.exe
-	GOARCH=amd64 GOOS=darwin  go test -tags "$(BUILDTAGS)" --ldflags="-X $(MODULEPATH)/pkg/crc/version.installerBuild=true $(VERSION_VARIABLES)" ./test/integration/ -c -o $(BUILD_DIR)/macos-amd64/integration.test
-	GOARCH=arm64 GOOS=darwin  go test -tags "$(BUILDTAGS)" --ldflags="-X $(MODULEPATH)/pkg/crc/version.installerBuild=true $(VERSION_VARIABLES)" ./test/integration/ -c -o $(BUILD_DIR)/macos-arm64/integration.test
+	go test ./test/integration/ -tags "$(BUILDTAGS)" --ldflags="$(ILDFLAGS)" -c -o $(BUILD_DIR)/integration.test
 
 #  Build the container image for e2e
 .PHONY: containerized_e2e
@@ -207,7 +210,7 @@ CRC_INTEGRATION_IMG_VERSION=v$(CRC_VERSION)-$(COMMIT_SHA)
 endif
 IMG_INTEGRATION = quay.io/crcont/crc-integration:$(CRC_INTEGRATION_IMG_VERSION)
 containerized_integration: clean
-	$(CONTAINER_RUNTIME) build -t $(IMG_INTEGRATION) -f images/build-integration/Dockerfile .
+	$(CONTAINER_RUNTIME) build -t $(IMG_INTEGRATION)-${OS}-${ARCH} -f images/build-integration/Containerfile --build-arg=OS=${OS} --build-arg=ARCH=${ARCH} .
 
 .PHONY: integration ## Run integration tests in Ginkgo
 integration:

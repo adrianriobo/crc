@@ -15,10 +15,6 @@ on:
       preset:
         description: preset type only required if qe-type is e2e
         type: string  
-      windows-featurepack:  
-        type: string  
-      windows-version:  
-        type: string  
     secrets:  
       pull-secret:  
         required: true  
@@ -32,13 +28,21 @@ on:
         required: true  
 
 jobs:
-  e2e:
+  windows-qe:
     runs-on: ubuntu-latest
     permissions:
       statuses: write # needed to update commit status (pending/failure/sucess)
       checks: write # as documented in https://github.com/mikepenz/action-junit-report?tab=readme-ov-file#pr-run-permissions
     strategy:
       fail-fast: false
+      matrix:
+        windows-version: ['10','11']
+        windows-featurepack: ['22h2-ent', '23h2-ent']
+        exclude:
+        - windows-version: '10'
+          windows-featurepack: '23h2-ent'
+        - windows-version: '11'
+          windows-featurepack: '22h2-ent'
       
     steps:
     - name: Download artifacts to be tested
@@ -46,10 +50,6 @@ jobs:
       uses: dawidd6/action-download-artifact@v3
       with:
         workflow: ${{inputs.workflow_id}}
-        # It will download all
-        # name: gh_context
-        # name: crc-e2e-gh          
-        # name: Windows Installer (windows-2022)
 
     - name: Set environment for the run
       run: |
@@ -69,7 +69,7 @@ jobs:
         # Status msg
         data="{\"state\":\"pending\"
         data="${data},\"description\":\"Running ${{inputs.qe-type}} on Windows\""
-        data="${data},\"context\":\"ci/gh/${{inputs.qe-type}}/windows-${{inputs.windows-version}}-${{inputs.windows-featurepack}}\""
+        data="${data},\"context\":\"ci/gh/${{inputs.qe-type}}/windows-${{matrix.windows-version}}-${{matrix.windows-featurepack}}\""
         data="${data},\"target_url\":\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}"
         # Create status by API call
         curl -L -v -X POST \
@@ -92,8 +92,8 @@ jobs:
             --project-name 'windows-desktop' \
             --backed-url 'file:///workspace' \
             --conn-details-output '/workspace' \
-            --windows-version '${{inputs.windows-version}}' \
-            --windows-featurepack '${{inputs.windows-featurepack}}' \
+            --windows-version '${{matrix.windows-version}}' \
+            --windows-featurepack '${{matrix.windows-featurepack}}' \
             --tags project=openshift-local,source=github,org=${{github.repository_owner}} \
             --spot
         podman logs -f windows-create
@@ -117,32 +117,40 @@ jobs:
             -forceFresh 'false'
         podman logs -f crc-win-support
 
-    - name: Run CRC e2e
+    - name: Run CRC ${{inputs.qe-type}}
       run: |
-        # load crc-e2e image from tar file
-        podman load -i crc-e2e.tar
+        # load image
+        podman load -i crc-${{inputs.qe-type}}-windows-amd64.tar
+        # run
+        cmd="crc-qe/run.ps1 -junitFilename crc-${{inputs.qe-type}}-junit.xml "
+        if [[ "${inputs.qe-type}" == "e2e" ]]; then
+          if [[ "${inputs.preset}" == "openshift" ]]; then
+            cmd="$cmd -e2eTagExpression '@story_microshift'"
+          else
+            cmd="$cmd -e2eTagExpression '~@minimal && ~@story_microshift'"
+          fi
+        fi
 
-        # run e2e
-        podman run --rm -d --name crc-e2e \
+        - name: e2e-tag
+        value: "@story_microshift"
+        podman run --rm -d --name crc-${{inputs.qe-type}} \
           -e TARGET_HOST=$(cat host) \
           -e TARGET_HOST_USERNAME=$(cat username) \
           -e TARGET_HOST_KEY_PATH=/data/id_rsa \
-          -e TARGET_FOLDER=crc-e2e \
+          -e TARGET_FOLDER=crc-qe \
           -e TARGET_RESULTS=results \
           -e OUTPUT_FOLDER=/data \
           -e DEBUG=true \
           -v $PWD/pull-secret:/opt/crc/pull-secret:z \
           -v $PWD:/data:z \
-          quay.io/crcont/crc-e2e:gh-windows-amd64  \
-              crc-e2e/run.ps1 -junitFilename crc-e2e-junit.xml 
-
-        # Check logs 
-        podman logs -f crc-e2e
+          quay.io/crcont/crc-${{inputs.qe-type}}:gh-windows-amd64  \
+              crc-qe/run.ps1 -junitFilename crc-${{inputs.qe-type}}-junit.xml 
+        podman logs -f crc-${{inputs.qe-type}}
 
     - name: Test Report
       id: test-report
       uses: mikepenz/action-junit-report@v4
-      if: always() # always run even if the previous step fails
+      if: always() 
       with:
         fail_on_failure: true
         include_passed: true
@@ -150,11 +158,11 @@ jobs:
         require_tests:  true
         report_paths: '**/*.xml'
 
-    - name: Upload e2e results
+    - name: Upload ${{inputs.qe-type}} results
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: E2E-results-windows-${{ matrix.windows-version }}${{ matrix.windows-featurepack }}
+        name: windows-${{inputs.qe-type}}-${{matrix.windows-version}}${{matrix.windows-featurepack}}
         path: |
           **/*.xml
           **/*.results
@@ -164,49 +172,35 @@ jobs:
       if: always()
       run: |
         set -xuo
-        OUTCOME="success"
+        # Status msg
+        data="{\"state\":\"success\"
         if [[ ${{steps.test-report.outcome}} != "success" ]]; then 
-          OUTCOME="failure";
+          data="{\"state\":\"failure\" 
         fi
-
-        DESCRIPTION="Finished"
-        CONTEXT="ci/gh/e2e/windows-${{ matrix.windows-version }}-${{ matrix.windows-featurepack }}"
-
-        # post result to commit status
-        curl -L -v \
-        -X POST \
-        -H "Accept: application/vnd.github+json" \
-        -H "Authorization: Bearer ${{ github.token }}" \
-        https://api.github.com/repos/${{ github.repository }}/statuses/${{ env.COMMIT_SHA }} \
-        -d "{\"state\":\"${OUTCOME}\", \"description\":\"${DESCRIPTION}\", \"context\":\"${CONTEXT}\", \"target_url\":\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}"
+        data="${data},\"description\":\"Finished ${{inputs.qe-type}} on Windows\""
+        data="${data},\"context\":\"ci/gh/${{inputs.qe-type}}/windows-${{matrix.windows-version}}-${{matrix.windows-featurepack}}\""
+        data="${data},\"target_url\":\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}"
+        # Create status by API call
+        curl -L -v -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ github.token }}" \
+          https://api.github.com/repos/${{ github.repository }}/statuses/${{ env.commit_sha }} \
+          -d "${data}"
 
     - name: Destroy instance
       if: always()
       run: |
         # Make sure lock is removed
         rm -rf .pulumi/locks/*
-        
-        # Destroy instance
+        # Destroy 
         podman run -d --name windows-destroy --rm \
           -v ${PWD}:/workspace:z \
-          -e ARM_TENANT_ID=${{ secrets.ARM_TENANT_ID }} \
-          -e ARM_SUBSCRIPTION_ID=${{ secrets.ARM_SUBSCRIPTION_ID }} \
-          -e ARM_CLIENT_ID=${{ secrets.ARM_CLIENT_ID }} \
-          -e ARM_CLIENT_SECRET='${{ secrets.ARM_CLIENT_SECRET }}' \
-          quay.io/rhqp/qenvs:v0.6.0 azure \
+          -e ARM_TENANT_ID=${{secrets.arm-tenant-id}} \
+          -e ARM_SUBSCRIPTION_ID=${{secrets.arm-subscription-id}} \
+          -e ARM_CLIENT_ID=${{secrets.arm-client-id}} \
+          -e ARM_CLIENT_SECRET='${{secrets.arm-client-secret}}' \
+          quay.io/rhqp/qenvs:v0.6.3 azure \
             windows destroy \
             --project-name 'windows-desktop' \
             --backed-url 'file:///workspace'
-        # Check logs
         podman logs -f windows-destroy
-
-
-
-  - name: Set the tag
-        run: |
-          if [ -z "${{inputs.tag}}" ]
-          then
-            echo "final_tag=latest" >> $GITHUB_ENV
-          else
-            echo "final_tag=${{inputs.tag}}" >> $GITHUB_ENV
-          fi 
