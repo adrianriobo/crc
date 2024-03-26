@@ -5,7 +5,7 @@ name: windows-qe-tpl
 on:  
   workflow_call:  
     inputs:  
-      workflow-id:  
+      trigger-workflow-id:  
         required: true  
         type: string
       qe-type:  
@@ -15,17 +15,6 @@ on:
       preset:
         description: preset type only required if qe-type is e2e
         type: string  
-    secrets:  
-      pull-secret:  
-        required: true  
-      arm-tenant-id:  
-        required: true  
-      arm-subscription-id:  
-        required: true  
-      arm-client-id:  
-        required: true  
-      arm-client-secret:  
-        required: true  
 
 jobs:
   windows-qe:
@@ -36,22 +25,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        windows-version: ['10','11']
-        windows-featurepack: ['22h2-ent', '23h2-ent']
-        exclude:
-        - windows-version: '10'
-          windows-featurepack: '23h2-ent'
-        - windows-version: '11'
-          windows-featurepack: '22h2-ent'
+        windows-version: ['11']
+        windows-featurepack: ['23h2-ent']
       
     steps:
-    - name: Download artifacts to be tested
+    - name: Download gh context
       id: download-gh-context-artifact
       uses: dawidd6/action-download-artifact@v3
       with:
-        workflow: ${{inputs.workflow_id}}
+        workflow: ${{inputs.trigger-workflow-id}}
+        name: gh-context
 
-    - name: Set environment for the run
+    - name: Download windows installer
+      id: download-windows-installer-artifact
+      uses: dawidd6/action-download-artifact@v3
+      with:
+        workflow: ${{inputs.trigger-workflow-id}}
+        name: windows-installer
+
+    - name: Download qe oci image
+      id: download-qe-oci-image-artifact
+      uses: dawidd6/action-download-artifact@v3
+      with:
+        workflow: ${{inputs.trigger-workflow-id}}
+        name: crc-${{inputs.qe-type}}-windows-amd64
+
+    - name: Correlate
+      env:
+        PULL_SECRET: ${{ secrets.PULL_SECRET }}
       run: |
         # Get origin commit sha for testing
         commit_sha=$(cat gh_context.json | jq -r '.event.after')
@@ -60,16 +61,25 @@ jobs:
           commit_sha=$(cat gh_context.json | jq -r '.sha')
         fi
         echo "commit_sha=${commit_sha}" >> "$GITHUB_ENV"
+        
+        # Set status_context
+        status_context="ci/gh/${{inputs.qe-type}}"
+        if [[ "${inputs.qe-type}" == "e2e" ]]; then
+          status_context="${status_context}-${{inputs.preset}}"
+        fi
+        status_context="${status_context}/windows-${{matrix.windows-version}}-${{matrix.windows-featurepack}}"
+        echo "status_context=${status_context}" >> "$GITHUB_ENV"
+
         # Save pull-secret as file
-        echo ${{secrets.pull-secret}} > pull-secret
+        echo "${PULL_SECRET}" > pull-secret
 
     - name: Add status to the PR check
       run: |
         set -xuo
         # Status msg
-        data="{\"state\":\"pending\"
+        data="{\"state\":\"pending\""
         data="${data},\"description\":\"Running ${{inputs.qe-type}} on Windows\""
-        data="${data},\"context\":\"ci/gh/${{inputs.qe-type}}/windows-${{matrix.windows-version}}-${{matrix.windows-featurepack}}\""
+        data="${data},\"context\":\"${{ env.status_context }}\""
         data="${data},\"target_url\":\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}"
         # Create status by API call
         curl -L -v -X POST \
@@ -83,10 +93,10 @@ jobs:
         # Create instance
         podman run -d --name windows-create --rm \
           -v ${PWD}:/workspace:z \
-          -e ARM_TENANT_ID=${{secrets.arm-tenant-id}} \
-          -e ARM_SUBSCRIPTION_ID=${{secrets.arm-subscription-id}} \
-          -e ARM_CLIENT_ID=${{secrets.arm-client-id}} \
-          -e ARM_CLIENT_SECRET='${{secrets.arm-client-secret}}' \
+          -e ARM_TENANT_ID=${{secrets.ARM_TENANT_ID}} \
+          -e ARM_SUBSCRIPTION_ID=${{secrets.ARM_SUBSCRIPTION_ID}} \
+          -e ARM_CLIENT_ID=${{secrets.ARM_CLIENT_ID}} \
+          -e ARM_CLIENT_SECRET='${{secrets.ARM_CLIENT_SECRET}}' \
           quay.io/rhqp/qenvs:v0.6.3 azure \
             windows create \
             --project-name 'windows-desktop' \
@@ -173,12 +183,12 @@ jobs:
       run: |
         set -xuo
         # Status msg
-        data="{\"state\":\"success\"
+        data="{\"state\":\"success\""
         if [[ ${{steps.test-report.outcome}} != "success" ]]; then 
-          data="{\"state\":\"failure\" 
+          data="{\"state\":\"failure\""
         fi
         data="${data},\"description\":\"Finished ${{inputs.qe-type}} on Windows\""
-        data="${data},\"context\":\"ci/gh/${{inputs.qe-type}}/windows-${{matrix.windows-version}}-${{matrix.windows-featurepack}}\""
+        data="${data},\"context\":\"${{ env.status_context }}\""
         data="${data},\"target_url\":\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}"
         # Create status by API call
         curl -L -v -X POST \
@@ -195,10 +205,10 @@ jobs:
         # Destroy 
         podman run -d --name windows-destroy --rm \
           -v ${PWD}:/workspace:z \
-          -e ARM_TENANT_ID=${{secrets.arm-tenant-id}} \
-          -e ARM_SUBSCRIPTION_ID=${{secrets.arm-subscription-id}} \
-          -e ARM_CLIENT_ID=${{secrets.arm-client-id}} \
-          -e ARM_CLIENT_SECRET='${{secrets.arm-client-secret}}' \
+          -e ARM_TENANT_ID=${{secrets.ARM_TENANT_ID}} \
+          -e ARM_SUBSCRIPTION_ID=${{secrets.ARM_SUBSCRIPTION_ID}} \
+          -e ARM_CLIENT_ID=${{secrets.ARM_CLIENT_ID}} \
+          -e ARM_CLIENT_SECRET='${{secrets.ARM_CLIENT_SECRET}}' \
           quay.io/rhqp/qenvs:v0.6.3 azure \
             windows destroy \
             --project-name 'windows-desktop' \
