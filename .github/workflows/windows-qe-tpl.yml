@@ -50,7 +50,7 @@ jobs:
         workflow: ${{inputs.trigger-workflow-id}}
         name: crc-${{inputs.qe-type}}-windows-amd64
 
-    - name: Correlate
+    - name: Correlatea
       env:
         PULL_SECRET: ${{ secrets.PULL_SECRET }}
       run: |
