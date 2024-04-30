@@ -8,7 +8,7 @@ on:
   
 jobs:
   windows-e2e-ocp:
-    uses: crc-org/crc/.github/workflows/windows-qe-tpl.yml@main
+    uses: adrianriobo/crc/.github/workflows/windows-qe-tpl.yml@main
     strategy:
       fail-fast: false
       matrix:
@@ -22,7 +22,7 @@ jobs:
         - qe-type: 'integration'
           preset: 'microshift'
     with:
-      trigger-workflow-id: ${{ github.event.workflow_run.workflow_id }}
+      trigger-workflow-run-id: ${{ github.event.workflow_run.id }}
       qe-type: ${{matrix.qe-type}}
       preset: ${{matrix.preset}}
     secrets: inherit
