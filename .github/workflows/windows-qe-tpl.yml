@@ -14,7 +14,7 @@ on:
         required: true  
         type: string
       preset:
-        description: preset type only required if qe-type is e2e
+        description: preset type only required if qe-type is e2ea
         type: string  
 
 jobs:
