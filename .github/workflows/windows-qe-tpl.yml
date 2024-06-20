@@ -58,11 +58,11 @@ jobs:
         run-id: ${{inputs.trigger-workflow-run-id}}
         github-token: ${{ github.token }}
 
-    - name: Correlate
+    - name: Correlatea
       env:
         PULL_SECRET: ${{ secrets.PULL_SECRET }}
       run: |
-        # Get origin commit sha for testing
+        # Get origin commit sha for testinga
         commit_sha=$(cat gh_context.json | jq -r '.event.after')
         if [[ -z "${commit_sha}" ]] || [[ "${commit_sha}" == null ]]; then
           # on first PR creation .event.after is empty, then .sha is used as commit instead
